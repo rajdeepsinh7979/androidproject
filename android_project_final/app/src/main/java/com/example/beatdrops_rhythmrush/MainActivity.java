@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private static final int SPLASH_DURATION = 3000; // 2 seconds
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,8 +30,6 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.splash_image).setVisibility(android.view.View.GONE);
 
             }
-        } , SPLASH_DURATION);
+        }, SPLASH_DURATION);
     }
-
-
 }

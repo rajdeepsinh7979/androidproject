@@ -1,6 +1,7 @@
 package com.example.beatdrops_rhythmrush;
 
 import android.os.Bundle;
+import android.os.Handler;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,16 +10,29 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int SPLASH_DURATION = 3000; // 2 seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+
+        // Full-screen immersive mode (optional)
+        getWindow().getDecorView().setSystemUiVisibility(
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        );
+        getWindow().setStatusBarColor(android.graphics.Color.TRANSPARENT);
+
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // Delay before moving to main content
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.splash_image).setVisibility(android.view.View.GONE);
+
+
+            }
+        }, SPLASH_DURATION);
     }
 }

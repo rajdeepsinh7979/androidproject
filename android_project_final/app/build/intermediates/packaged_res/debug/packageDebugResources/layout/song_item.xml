@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="104dp"
+    android:background="@drawable/music_back"
+    android:padding="16dp">
+
+    <!-- Song Name -->
+    <TextView
+        android:id="@+id/songName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Believer"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:layout_marginStart="80dp"
+        android:layout_centerVertical="true"/>
+
+    <!-- Play Button -->
+    <ImageView
+        android:id="@+id/playBtn"
+        android:layout_width="100dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/music_play_button"/>
+</RelativeLayout>

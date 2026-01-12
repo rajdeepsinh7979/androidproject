@@ -12,6 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BeatDropsRhythmRush">
         <activity
+            android:name=".GameActivity"
+            android:exported="false" />
+        <activity
+            android:name=".song_item"
+            android:exported="false" />
+        <activity
             android:name=".musicselection"
             android:exported="false" />
         <activity

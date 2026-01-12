@@ -1,0 +1,26 @@
+R_DEF: Internal format may change without notice
+local
+anim fade_in
+anim fade_out
+color black
+color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable music_background
+drawable music_best_score
+drawable music_settings
+drawable splash_screen_back
+id main
+id musicBackground
+id music_bestscore
+id music_settings
+id splash_image
+layout activity_main
+layout activity_musicselection
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Base.Theme.BeatDropsRhythmRush
+style Theme.BeatDropsRhythmRush
+xml backup_rules
+xml data_extraction_rules

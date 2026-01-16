@@ -4,6 +4,7 @@ anim fade_in
 anim fade_out
 color black
 color white
+drawable game_back
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable logo3
@@ -13,6 +14,7 @@ drawable music_best_score
 drawable music_play_button
 drawable music_settings
 drawable splash_screen_back
+id bgImage
 id imageView
 id main
 id musicBackground

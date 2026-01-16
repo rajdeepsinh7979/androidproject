@@ -108,6 +108,10 @@
         "source": "C:\\Users\\91845\\.gradle\\daemon\\8.13\\com.example.beatdrops_rhythmrush.app-main-38:\\xml\\data_extraction_rules.xml"
     },
     {
+        "merged": "com.example.beatdrops_rhythmrush.app-debug-36:/drawable_game_back.jpeg.flat",
+        "source": "com.example.beatdrops_rhythmrush.app-main-38:/drawable/game_back.jpeg"
+    },
+    {
         "merged": "C:\\Users\\91845\\.gradle\\daemon\\8.13\\com.example.beatdrops_rhythmrush.app-debug-36:\\drawable_music_settings.png.flat",
         "source": "C:\\Users\\91845\\.gradle\\daemon\\8.13\\com.example.beatdrops_rhythmrush.app-main-38:\\drawable\\music_settings.png"
     },

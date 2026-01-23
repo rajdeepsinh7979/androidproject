@@ -16,21 +16,21 @@ import java.util.Random;
 
 public class game extends AppCompatActivity {
 
-    MediaPlayer player;
-    Handler handler = new Handler();
-    Random random = new Random();
+    private MediaPlayer player;
+    private Handler handler;
+    private Random random;
 
-    FrameLayout gameArea;
-    TextView songLabel;
+    private FrameLayout gameArea;
+    private TextView songLabel;
 
-    int tileWidth;
-    int tileHeight = 300;
-    int laneCount = 4;
+    private int tileWidth;
+    private int tileHeight;
+    private final int laneCount = 4;
 
-    boolean gameOver = false;
+    private boolean gameOver = false;
 
-    // 🎵 Your 4 tile images
-    int[] tileImages = {
+    // 🎵 Tile images
+    private final int[] tileImages = {
             R.drawable.dropblue,
             R.drawable.dropgreen,
             R.drawable.droppurple,
@@ -44,6 +44,9 @@ public class game extends AppCompatActivity {
 
         hideSystemUI();
 
+        handler = new Handler();
+        random = new Random();
+
         songLabel = findViewById(R.id.songLabel);
         gameArea = findViewById(R.id.gameArea);
 
@@ -53,8 +56,18 @@ public class game extends AppCompatActivity {
             player.start();
         }
 
+        // Wait for layout → calculate responsive tile size
         gameArea.post(() -> {
+
+            // Divide screen into lanes
             tileWidth = gameArea.getWidth() / laneCount;
+
+            // Height based on width (perfect for phone + tablet)
+            tileHeight = Math.min(
+                    (int) (tileWidth * 1.8f),
+                    gameArea.getHeight() / 3
+            );
+
             startTileSpawner();
         });
     }
@@ -75,24 +88,34 @@ public class game extends AppCompatActivity {
         ImageView tile = new ImageView(this);
         tile.setScaleType(ImageView.ScaleType.FIT_XY);
 
-        int randomTile = random.nextInt(tileImages.length);
-        tile.setImageResource(tileImages[randomTile]);
+        // Random tile image
+        tile.setImageResource(
+                tileImages[random.nextInt(tileImages.length)]
+        );
 
         boolean[] isHit = {false};
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                tileWidth,
-                tileHeight
-        );
+        FrameLayout.LayoutParams params =
+                new FrameLayout.LayoutParams(tileWidth, tileHeight);
 
         int laneIndex = random.nextInt(laneCount);
         params.leftMargin = laneIndex * tileWidth;
         tile.setLayoutParams(params);
 
         tile.setOnClickListener(v -> {
+            if (isHit[0]) return;
+
             isHit[0] = true;
-            gameArea.removeView(tile);
+
+            tile.animate()
+                    .scaleX(0.7f)
+                    .scaleY(0.7f)
+                    .alpha(0f)
+                    .setDuration(120)
+                    .withEndAction(() -> gameArea.removeView(tile))
+                    .start();
         });
+
 
         gameArea.addView(tile);
 
@@ -127,7 +150,7 @@ public class game extends AppCompatActivity {
 
         handler.removeCallbacksAndMessages(null);
 
-        if (player != null && player.isPlaying()) {
+        if (player != null) {
             player.pause();
         }
 
@@ -148,7 +171,9 @@ public class game extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         handler.removeCallbacksAndMessages(null);
+
         if (player != null) {
             player.release();
             player = null;

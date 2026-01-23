@@ -16,20 +16,29 @@ import java.util.Random;
 
 public class game extends AppCompatActivity {
 
+    // Core
     private MediaPlayer player;
     private Handler handler;
     private Random random;
 
+    // UI
     private FrameLayout gameArea;
     private TextView songLabel;
 
+    // Tile sizing
     private int tileWidth;
     private int tileHeight;
     private final int laneCount = 4;
 
+    // Game state
     private boolean gameOver = false;
 
-    // 🎵 Tile images
+    // BPM
+    private int bpm = 120;           // default BPM
+    private int spawnInterval;       // ms
+    private int fallDuration;        // ms
+
+    // Tiles
     private final int[] normalTiles = {
             R.drawable.dropblue,
             R.drawable.dropgreen,
@@ -51,19 +60,22 @@ public class game extends AppCompatActivity {
         songLabel = findViewById(R.id.songLabel);
         gameArea = findViewById(R.id.gameArea);
 
+        // 🎵 Get music & BPM from previous screen
         int music = getIntent().getIntExtra("music", 0);
+        bpm = getIntent().getIntExtra("bpm", 120);
+
+        calculateTimingFromBPM();
+
         if (music != 0) {
             player = MediaPlayer.create(this, music);
             player.start();
         }
 
-        // Wait for layout → calculate responsive tile size
+        // Responsive sizing after layout
         gameArea.post(() -> {
 
-            // Divide screen into lanes
             tileWidth = gameArea.getWidth() / laneCount;
 
-            // Height based on width (perfect for phone + tablet)
             tileHeight = Math.min(
                     (int) (tileWidth * 1.8f),
                     gameArea.getHeight() / 3
@@ -72,8 +84,27 @@ public class game extends AppCompatActivity {
             startTileSpawner();
         });
     }
+
+    // 🎵 Convert BPM → timing
+    private void calculateTimingFromBPM() {
+
+        int beatMs = 60000 / bpm;
+
+        // 🎵 Spawn every 2 beats (much playable)
+        spawnInterval = beatMs * 2;
+
+        // 🎮 Tiles fall over 6–8 beats
+        fallDuration = beatMs * 7;
+
+        // 🔒 Safety limits (VERY IMPORTANT)
+        spawnInterval = Math.max(spawnInterval, 600);
+        fallDuration = Math.max(fallDuration, 3500);
+    }
+
+
+    // 🔥 Fire tile chance
     private boolean shouldSpawnFireTile() {
-        return random.nextInt(7) == 0; // ~14% chance
+        return random.nextInt(7) == 0; // ~14%
     }
 
     private void startTileSpawner() {
@@ -82,10 +113,10 @@ public class game extends AppCompatActivity {
             public void run() {
                 if (!gameOver) {
                     spawnTile();
-                    handler.postDelayed(this, 800);
+                    handler.postDelayed(this, spawnInterval);
                 }
             }
-        }, 1000);
+        }, spawnInterval);
     }
 
     private void spawnTile() {
@@ -112,7 +143,7 @@ public class game extends AppCompatActivity {
         tile.setLayoutParams(params);
 
         tile.setOnClickListener(v -> {
-            if (isHit[0]) return;
+            if (isHit[0] || gameOver) return;
             isHit[0] = true;
 
             // 🔥 Fire tile = instant game over
@@ -140,7 +171,7 @@ public class game extends AppCompatActivity {
                 gameArea.getHeight()
         );
 
-        animator.setDuration(3000);
+        animator.setDuration(fallDuration);
 
         animator.addListener(new Animator.AnimatorListener() {
             @Override public void onAnimationStart(Animator animation) {}
@@ -157,7 +188,6 @@ public class game extends AppCompatActivity {
 
         animator.start();
     }
-
 
     private void triggerGameOver() {
         if (gameOver) return;

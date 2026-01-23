@@ -2,13 +2,12 @@ package com.beatdrops.beatdrops_rhythmrush;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +19,7 @@ public class game extends AppCompatActivity {
     MediaPlayer player;
     Handler handler = new Handler();
     Random random = new Random();
+
     FrameLayout gameArea;
     TextView songLabel;
 
@@ -29,6 +29,14 @@ public class game extends AppCompatActivity {
 
     boolean gameOver = false;
 
+    // 🎵 Your 4 tile images
+    int[] tileImages = {
+            R.drawable.dropblue,
+            R.drawable.dropgreen,
+            R.drawable.droppurple,
+            R.drawable.dropyellow
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,16 +44,14 @@ public class game extends AppCompatActivity {
 
         hideSystemUI();
 
+        songLabel = findViewById(R.id.songLabel);
+        gameArea = findViewById(R.id.gameArea);
+
         int music = getIntent().getIntExtra("music", 0);
         if (music != 0) {
             player = MediaPlayer.create(this, music);
             player.start();
         }
-
-        songLabel = findViewById(R.id.songLabel);
-        gameArea = findViewById(R.id.gameArea);
-
-        gameArea.setOnClickListener(v -> triggerGameOver());
 
         gameArea.post(() -> {
             tileWidth = gameArea.getWidth() / laneCount;
@@ -66,8 +72,11 @@ public class game extends AppCompatActivity {
     }
 
     private void spawnTile() {
-        Button tile = new Button(this);
-        tile.setBackgroundColor(Color.BLACK);
+        ImageView tile = new ImageView(this);
+        tile.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        int randomTile = random.nextInt(tileImages.length);
+        tile.setImageResource(tileImages[randomTile]);
 
         boolean[] isHit = {false};
 
@@ -128,10 +137,10 @@ public class game extends AppCompatActivity {
     private void hideSystemUI() {
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         );
     }

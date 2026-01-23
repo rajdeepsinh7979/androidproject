@@ -30,12 +30,13 @@ public class game extends AppCompatActivity {
     private boolean gameOver = false;
 
     // 🎵 Tile images
-    private final int[] tileImages = {
+    private final int[] normalTiles = {
             R.drawable.dropblue,
             R.drawable.dropgreen,
             R.drawable.droppurple,
             R.drawable.dropyellow
     };
+    private final int fireTile = R.drawable.dropfire;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,9 @@ public class game extends AppCompatActivity {
             startTileSpawner();
         });
     }
+    private boolean shouldSpawnFireTile() {
+        return random.nextInt(7) == 0; // ~14% chance
+    }
 
     private void startTileSpawner() {
         handler.postDelayed(new Runnable() {
@@ -88,10 +92,15 @@ public class game extends AppCompatActivity {
         ImageView tile = new ImageView(this);
         tile.setScaleType(ImageView.ScaleType.FIT_XY);
 
-        // Random tile image
-        tile.setImageResource(
-                tileImages[random.nextInt(tileImages.length)]
-        );
+        boolean isFireTile = shouldSpawnFireTile();
+
+        if (isFireTile) {
+            tile.setImageResource(fireTile);
+        } else {
+            tile.setImageResource(
+                    normalTiles[random.nextInt(normalTiles.length)]
+            );
+        }
 
         boolean[] isHit = {false};
 
@@ -104,9 +113,15 @@ public class game extends AppCompatActivity {
 
         tile.setOnClickListener(v -> {
             if (isHit[0]) return;
-
             isHit[0] = true;
 
+            // 🔥 Fire tile = instant game over
+            if (isFireTile) {
+                triggerGameOver();
+                return;
+            }
+
+            // ✅ Normal tile tap animation
             tile.animate()
                     .scaleX(0.7f)
                     .scaleY(0.7f)
@@ -115,7 +130,6 @@ public class game extends AppCompatActivity {
                     .withEndAction(() -> gameArea.removeView(tile))
                     .start();
         });
-
 
         gameArea.addView(tile);
 
@@ -135,7 +149,7 @@ public class game extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (!isHit[0] && !gameOver) {
+                if (!isHit[0] && !gameOver && !isFireTile) {
                     triggerGameOver();
                 }
             }
@@ -143,6 +157,7 @@ public class game extends AppCompatActivity {
 
         animator.start();
     }
+
 
     private void triggerGameOver() {
         if (gameOver) return;

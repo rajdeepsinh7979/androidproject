@@ -57,33 +57,30 @@
             android:textSize="22sp"
             android:textStyle="bold" />
     </FrameLayout>
-    <ImageButton
+    <ImageView
         android:id="@+id/music_settings"
         android:layout_width="121dp"
         android:layout_height="92dp"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="4dp"
-        android:background="@android:color/transparent"
         android:elevation="10dp"
         android:scaleType="fitCenter"
         android:src="@drawable/music_settings"
-        android:contentDescription="Settings"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="330dp"
-        android:layout_height="230dp"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="@+id/musicBackground"
+    android:id="@+id/imageView"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:adjustViewBounds="true"
+    android:scaleType="fitCenter"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintWidth_percent="0.85"
+    app:srcCompat="@drawable/logo3" />
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.274"
-        app:srcCompat="@drawable/logo3" />
 
     <ScrollView
         android:id="@+id/songScroll"

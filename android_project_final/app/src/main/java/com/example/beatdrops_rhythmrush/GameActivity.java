@@ -2,9 +2,11 @@ package com.beatdrops.beatdrops_rhythmrush;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -16,36 +18,35 @@ import java.util.Random;
 
 public class game extends AppCompatActivity {
 
-    // Core
     private MediaPlayer player;
     private Handler handler;
     private Random random;
 
-    // UI
     private FrameLayout gameArea;
     private TextView songLabel;
 
-    // Tile sizing
     private int tileWidth;
     private int tileHeight;
     private final int laneCount = 4;
 
-    // Game state
+    private int score = 0;
     private boolean gameOver = false;
 
-    // BPM
-    private int bpm = 120;           // default BPM
-    private int spawnInterval;       // ms
-    private int fallDuration;        // ms
+    private static final String PREFS_NAME = "BeatDropsPrefs";
+    private static final String HIGH_SCORE_KEY = "HIGH_SCORE";
 
-    // Tiles
+    private int bpm = 120;
+    private int spawnInterval;
+    private int fallDuration;
+
     private final int[] normalTiles = {
             R.drawable.dropblue,
             R.drawable.dropgreen,
             R.drawable.droppurple,
             R.drawable.dropyellow
     };
-    private final int fireTile = R.drawable.dropfire;
+
+    private final int fireTile = R.drawable.dropbomb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,57 +55,56 @@ public class game extends AppCompatActivity {
 
         hideSystemUI();
 
-        handler = new Handler();
+        
+        handler = new Handler(Looper.getMainLooper());
         random = new Random();
 
         songLabel = findViewById(R.id.songLabel);
         gameArea = findViewById(R.id.gameArea);
 
-        // 🎵 Get music & BPM from previous screen
-        int music = getIntent().getIntExtra("music", 0);
-        bpm = getIntent().getIntExtra("bpm", 120);
+        songLabel.setText("Score: 0");
 
-        calculateTimingFromBPM();
+        bpm = getIntent().getIntExtra("bpm", 120);
+        int music = getIntent().getIntExtra("music", 0);
 
         if (music != 0) {
             player = MediaPlayer.create(this, music);
-            player.start();
+            if (player != null) {
+                player.start();
+            }
         }
 
-        // Responsive sizing after layout
         gameArea.post(() -> {
-
             tileWidth = gameArea.getWidth() / laneCount;
-
             tileHeight = Math.min(
                     (int) (tileWidth * 1.8f),
                     gameArea.getHeight() / 3
             );
 
+            calculateTimingFromBPM();
             startTileSpawner();
+            startDifficultyRamp();
         });
     }
 
-    // 🎵 Convert BPM → timing
     private void calculateTimingFromBPM() {
-
         int beatMs = 60000 / bpm;
-
-        // 🎵 Spawn every 2 beats (much playable)
-        spawnInterval = beatMs * 2;
-
-        // 🎮 Tiles fall over 6–8 beats
-        fallDuration = beatMs * 7;
-
-        // 🔒 Safety limits (VERY IMPORTANT)
-        spawnInterval = Math.max(spawnInterval, 600);
-        fallDuration = Math.max(fallDuration, 3500);
+        spawnInterval = Math.max(beatMs * 2, 700);
+        fallDuration = Math.max(beatMs * 7, 3500);
     }
 
+    private void startDifficultyRamp() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (gameOver) return;
 
-    // 🔥 Fire tile chance
-    private boolean shouldSpawnFireTile() {
-        return random.nextInt(7) == 0; // ~14%
+                spawnInterval = Math.max((int) (spawnInterval * 0.92f), 450);
+                fallDuration = Math.max((int) (fallDuration * 0.94f), 2200);
+
+                handler.postDelayed(this, 10000);
+            }
+        }, 10000);
     }
 
     private void startTileSpawner() {
@@ -116,22 +116,24 @@ public class game extends AppCompatActivity {
                     handler.postDelayed(this, spawnInterval);
                 }
             }
-        }, spawnInterval);
+        }, 1000);
+    }
+
+    private boolean shouldSpawnFireTile() {
+        return random.nextInt(8) == 0;
     }
 
     private void spawnTile() {
+        if (gameOver) return;
+
         ImageView tile = new ImageView(this);
         tile.setScaleType(ImageView.ScaleType.FIT_XY);
 
         boolean isFireTile = shouldSpawnFireTile();
-
-        if (isFireTile) {
-            tile.setImageResource(fireTile);
-        } else {
-            tile.setImageResource(
-                    normalTiles[random.nextInt(normalTiles.length)]
-            );
-        }
+        tile.setImageResource(isFireTile
+                ? fireTile
+                : normalTiles[random.nextInt(normalTiles.length)]
+        );
 
         boolean[] isHit = {false};
 
@@ -146,18 +148,19 @@ public class game extends AppCompatActivity {
             if (isHit[0] || gameOver) return;
             isHit[0] = true;
 
-            // 🔥 Fire tile = instant game over
             if (isFireTile) {
                 triggerGameOver();
                 return;
             }
 
-            // ✅ Normal tile tap animation
+            score += 10;
+            songLabel.setText("Score: " + score);
+
             tile.animate()
                     .scaleX(0.7f)
                     .scaleY(0.7f)
                     .alpha(0f)
-                    .setDuration(120)
+                    .setDuration(150)
                     .withEndAction(() -> gameArea.removeView(tile))
                     .start();
         });
@@ -172,7 +175,6 @@ public class game extends AppCompatActivity {
         );
 
         animator.setDuration(fallDuration);
-
         animator.addListener(new Animator.AnimatorListener() {
             @Override public void onAnimationStart(Animator animation) {}
             @Override public void onAnimationCancel(Animator animation) {}
@@ -189,17 +191,45 @@ public class game extends AppCompatActivity {
         animator.start();
     }
 
+    private void saveHighScoreIfNeeded() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int savedHigh = prefs.getInt(HIGH_SCORE_KEY, 0);
+
+        if (score > savedHigh) {
+            prefs.edit().putInt(HIGH_SCORE_KEY, score).apply();
+        }
+    }
+
     private void triggerGameOver() {
         if (gameOver) return;
         gameOver = true;
 
         handler.removeCallbacksAndMessages(null);
 
-        if (player != null) {
+        if (player != null && player.isPlaying()) {
             player.pause();
         }
 
-        songLabel.setText("GAME OVER");
+        saveHighScoreIfNeeded();
+
+        int highScore = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getInt(HIGH_SCORE_KEY, 0);
+
+        songLabel.setText(
+                "GAME OVER\nScore: " + score + "\nHigh Score: " + highScore
+        );
+    }
+
+    @Override
+    public void onBackPressed() {
+        saveHighScoreIfNeeded();
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveHighScoreIfNeeded();
     }
 
     private void hideSystemUI() {
@@ -216,7 +246,6 @@ public class game extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         handler.removeCallbacksAndMessages(null);
 
         if (player != null) {

@@ -50,7 +50,7 @@
     android:layout_height="match_parent"
     tools:context=".game">
 
-    <!-- Background -->
+ 
     <ImageView
         android:id="@+id/bgImage"
         android:layout_width="0dp"
@@ -62,7 +62,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Game Area -->
+    
     <FrameLayout
         android:id="@+id/gameArea"
         android:layout_width="0dp"
@@ -73,7 +73,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Song / Game Over Text -->
     <TextView
         android:id="@+id/songLabel"
         android:layout_width="wrap_content"

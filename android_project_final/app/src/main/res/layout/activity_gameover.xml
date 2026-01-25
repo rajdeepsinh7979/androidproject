@@ -91,5 +91,34 @@
     </FrameLayout>
     <!-- Bottom Image Buttons -->
 
-    
+    <ImageButton
+        android:id="@+id/homebtn"
+        android:layout_width="170dp"
+        android:layout_height="80dp"
+        android:background="@drawable/homebutton"
+        android:scaleType="fitCenter"
+        android:contentDescription="Retry"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/playagainbtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="70dp"/>
+
+    <ImageButton
+        android:id="@+id/playagainbtn"
+        android:layout_width="170dp"
+        android:layout_height="80dp"
+        android:background="@drawable/playagainbutton"
+        android:scaleType="fitCenter"
+        android:contentDescription="Exit"
+
+        app:layout_constraintStart_toEndOf="@id/homebtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="70dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

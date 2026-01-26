@@ -1,47 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".game">
-
-    <ImageView
-        android:id="@+id/bgImage"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/game_back"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <FrameLayout
-        android:id="@+id/gameArea"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <TextView
-        android:id="@+id/songLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Playing..."
-        android:textSize="24sp"
-        android:textColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -50,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".game">
 
- 
+    <!-- Background -->
     <ImageView
         android:id="@+id/bgImage"
         android:layout_width="0dp"
@@ -62,7 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    
+    <!-- Game Area -->
     <FrameLayout
         android:id="@+id/gameArea"
         android:layout_width="0dp"
@@ -77,13 +34,41 @@
         android:id="@+id/songLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Playing..."
-        android:textSize="24sp"
-        android:textColor="@android:color/white"
+        android:text="Score: 0"
+
+        android:textSize="30sp"
+        android:textColor="#FFD54F"
         android:textStyle="bold"
-        android:layout_marginTop="20dp"
+        android:letterSpacing="0.08"
+
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+
+        android:background="@drawable/score_bg"
+        android:elevation="6dp"
+
+        android:shadowColor="#99000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="3"
+
+        android:gravity="center"
+
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="22dp"/>
+
+
+    <View
+        android:id="@+id/redFlashView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#88FF0000"
+        android:alpha="0"
+        android:clickable="false"
+        android:focusable="false" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -81,7 +81,6 @@
     app:layout_constraintWidth_percent="0.85"
     app:srcCompat="@drawable/logo3" />
 
-
     <ScrollView
         android:id="@+id/songScroll"
         android:layout_width="0dp"

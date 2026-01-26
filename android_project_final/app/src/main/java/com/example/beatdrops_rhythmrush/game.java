@@ -1,13 +1,16 @@
-package com.example.beatdrops_rhythmrush;
+package com.beatdrops.beatdrops_rhythmrush;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -31,6 +34,7 @@ public class game extends AppCompatActivity {
 
     private int tileWidth;
     private int tileHeight;
+    private Vibrator vibrator;
     private final int laneCount = 4;
 
     private int score = 0;
@@ -56,6 +60,8 @@ public class game extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+
         hideSystemUI();
 
         handler = new Handler(Looper.getMainLooper());
@@ -75,7 +81,7 @@ public class game extends AppCompatActivity {
             if (player != null) player.start();
         }
 
-        gameOverSound = MediaPlayer.create(this, R.raw.click);
+        gameOverSound = MediaPlayer.create(this, R.raw.gameover);
 
         gameArea.post(() -> {
             tileWidth = gameArea.getWidth() / laneCount;
@@ -152,12 +158,16 @@ public class game extends AppCompatActivity {
             isHit[0] = true;
 
             if (isFireTile) {
+                vibrate(120);   // 🔴 STRONG vibration
                 triggerGameOver();
                 return;
             }
 
+            vibrate(30);        // 🟢 LIGHT vibration on normal hit
+
             score += 10;
             songLabel.setText("Score: " + score);
+
 
             songLabel.animate()
                     .scaleX(1.15f)
@@ -206,6 +216,18 @@ public class game extends AppCompatActivity {
         });
 
         animator.start();
+    }
+    private void vibrate(int millis) {
+        if (vibrator == null) return;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(
+                    millis,
+                    VibrationEffect.DEFAULT_AMPLITUDE
+            ));
+        } else {
+            vibrator.vibrate(millis);
+        }
     }
 
     private void saveHighScoreIfNeeded() {

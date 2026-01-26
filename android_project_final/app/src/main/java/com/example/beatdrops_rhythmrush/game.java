@@ -1,7 +1,8 @@
-package com.beatdrops.beatdrops_rhythmrush;
+package com.example.beatdrops_rhythmrush;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -19,11 +20,14 @@ import java.util.Random;
 public class game extends AppCompatActivity {
 
     private MediaPlayer player;
+    private MediaPlayer gameOverSound;
+
     private Handler handler;
     private Random random;
 
     private FrameLayout gameArea;
     private TextView songLabel;
+    private View redFlashView;
 
     private int tileWidth;
     private int tileHeight;
@@ -52,15 +56,14 @@ public class game extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
         hideSystemUI();
 
-        
         handler = new Handler(Looper.getMainLooper());
         random = new Random();
 
         songLabel = findViewById(R.id.songLabel);
         gameArea = findViewById(R.id.gameArea);
+        redFlashView=findViewById(R.id.redFlashView);
 
         songLabel.setText("Score: 0");
 
@@ -69,10 +72,10 @@ public class game extends AppCompatActivity {
 
         if (music != 0) {
             player = MediaPlayer.create(this, music);
-            if (player != null) {
-                player.start();
-            }
+            if (player != null) player.start();
         }
+
+        gameOverSound = MediaPlayer.create(this, R.raw.click);
 
         gameArea.post(() -> {
             tileWidth = gameArea.getWidth() / laneCount;
@@ -156,6 +159,20 @@ public class game extends AppCompatActivity {
             score += 10;
             songLabel.setText("Score: " + score);
 
+            songLabel.animate()
+                    .scaleX(1.15f)
+                    .scaleY(1.15f)
+                    .setDuration(80)
+                    .withEndAction(() ->
+                            songLabel.animate()
+                                    .scaleX(1f)
+                                    .scaleY(1f)
+                                    .setDuration(120)
+                                    .start()
+                    )
+                    .start();
+
+
             tile.animate()
                     .scaleX(0.7f)
                     .scaleY(0.7f)
@@ -212,24 +229,46 @@ public class game extends AppCompatActivity {
 
         saveHighScoreIfNeeded();
 
-        int highScore = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                .getInt(HIGH_SCORE_KEY, 0);
+        if (gameOverSound != null) gameOverSound.start();
 
-        songLabel.setText(
-                "GAME OVER\nScore: " + score + "\nHigh Score: " + highScore
+        shakeScreen();
+        flashRed();
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Intent intent = new Intent(game.this, gameover.class);
+            intent.putExtra("score", score);
+            intent.putExtra("bpm", bpm);
+            intent.putExtra("music", getIntent().getIntExtra("music", 0));
+            startActivity(intent);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            finish();
+        }, 700);
+    }
+
+    private void shakeScreen() {
+        View root = getWindow().getDecorView();
+        ObjectAnimator shake = ObjectAnimator.ofFloat(
+                root, "translationX",
+                0, 25, -25, 20, -20, 15, -15, 10, -10, 5, -5, 0
         );
+        shake.setDuration(500);
+        shake.start();
     }
 
-    @Override
-    public void onBackPressed() {
-        saveHighScoreIfNeeded();
-        super.onBackPressed();
-    }
+    private void flashRed() {
+        if (redFlashView == null) return;
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        saveHighScoreIfNeeded();
+        redFlashView.setAlpha(0f);
+        redFlashView.animate()
+                .alpha(0.8f)
+                .setDuration(100)
+                .withEndAction(() ->
+                        redFlashView.animate()
+                                .alpha(0f)
+                                .setDuration(300)
+                                .start()
+                )
+                .start();
     }
 
     private void hideSystemUI() {
@@ -244,6 +283,12 @@ public class game extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        saveHighScoreIfNeeded();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacksAndMessages(null);
@@ -251,6 +296,11 @@ public class game extends AppCompatActivity {
         if (player != null) {
             player.release();
             player = null;
+        }
+
+        if (gameOverSound != null) {
+            gameOverSound.release();
+            gameOverSound = null;
         }
     }
 }

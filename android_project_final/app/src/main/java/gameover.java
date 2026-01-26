@@ -61,6 +61,7 @@ public class gameover extends AppCompatActivity {
             isNavigating = true;
 
             playClick();
+            animateButton(v);
 
             v.postDelayed(() -> {
                 Intent intent = new Intent(gameover.this, songselection.class);
@@ -77,6 +78,7 @@ public class gameover extends AppCompatActivity {
             isNavigating = true;
 
             playClick();
+            animateButton(v);
 
             v.postDelayed(() -> {
                 Intent intent = new Intent(gameover.this, game.class);
@@ -95,8 +97,41 @@ public class gameover extends AppCompatActivity {
             clickSound.start();
         }
     }
-    
-    
+    private void animateButton(View v) {
+        Animation press = AnimationUtils.loadAnimation(this, R.anim.button_press);
+        Animation release = AnimationUtils.loadAnimation(this, R.anim.button_release);
+
+        press.setAnimationListener(new Animation.AnimationListener() {
+            @Override public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                v.startAnimation(release);
+            }
+
+            @Override public void onAnimationRepeat(Animation animation) {}
+        });
+
+        v.startAnimation(press);
+    }
+
+    private void animateScore(TextView view, int finalScore) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            int current = 0;
+
+            @Override
+            public void run() {
+                if (current <= finalScore) {
+                    view.setText(String.valueOf(current));
+                    current += Math.max(1, finalScore / 30);
+                    handler.postDelayed(this, 20);
+                } else {
+                    view.setText(String.valueOf(finalScore));
+                }
+            }
+        }, 300);
+    }
 
     private void hideSystemUI() {
         getWindow().getDecorView().setSystemUiVisibility(

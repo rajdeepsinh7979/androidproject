@@ -31,6 +31,8 @@ public class settings extends AppCompatActivity {
             return insets;
         });
 
+        // 🔊 MUSIC CLICK AREA
+        View musicClickArea = findViewById(R.id.musicClickArea);
 
         musicClickArea.setOnClickListener(v -> {
             Intent intent = new Intent(settings.this, songselection.class);
@@ -76,6 +78,24 @@ public class settings extends AppCompatActivity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        
+        View resetScoreView = findViewById(R.id.resetscore);
+
+        resetScoreView.setOnClickListener(v -> {
+            // Show confirmation dialog
+            new AlertDialog.Builder(settings.this)
+                    .setTitle("Reset High Score")
+                    .setMessage("Are you sure you want to reset your high score?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // Reset the score in SharedPreferences
+
+                        prefs.edit().putInt("HIGH_SCORE", 0).apply();
+
+                        // Optional: give feedback
+                        android.widget.Toast.makeText(settings.this, "High score reset!", android.widget.Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("No", null) // do nothing if No
+                    .show();
+        });
+
     }
 }
